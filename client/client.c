@@ -78,8 +78,8 @@ void start_chat(int socketFD)
     memset(recv_buffer, 0, BUFFER_SIZE + 1);
 
     //receive message from host
-    recv(socketFD, recv_buffer, recv_buffer_size, 0);
-    printf("%s", recv_buffer);
+    //recv(socketFD, recv_buffer, recv_buffer_size, 0);
+    //printf("%s", recv_buffer);
 
     //get user input
     printf("\n%s> ", client_name);

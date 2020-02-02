@@ -4,7 +4,6 @@ import socket
 import signal
 import sys
 
-# thread_lock = threading.Lock()
 MESSAGE_SIZE = 1024
 
 
@@ -20,11 +19,35 @@ def get_client_name(client_connection):
     return client_name
 
 
+def listen(client_connection, client_name, chat_thread_lock):
+    while True:
+        # check to see if parent thread is finished
+        if chat_thread_lock.acquire(False):
+            print("Listen thread returning")
+            break
+
+        # receive message from the client
+        client_data = client_connection.recv(MESSAGE_SIZE)
+        if not client_data:
+            break
+
+        # output clients message to terminal
+        print("\n" + client_name + "> " + client_data.decode('utf-8'))
+
+    print("Client has disconnected")
+
+
 # function that handles the chat loop for the session
 def start_chat(client_connection, port, client_name):
+
+    # begin listening thread
+    parent_thread = threading.Lock()
+    parent_thread.acquire(False);
+    start_new_thread(listen, (client_connection, client_name, parent_thread,))
+
     while True:
         # get user input, prompt with [PORT]>
-        user_input = input(str(port) + "> ")
+        user_input = input("\n" + str(port) + "> ")
 
         # check for '\quit'
         if "\quit" in user_input:
@@ -33,14 +56,7 @@ def start_chat(client_connection, port, client_name):
         # combine prompt and message to give to client
         to_send = str(port) + "> " + user_input
 
-        # send the message to the client
-        bytes_sent = client_connection.send(bytes(to_send, 'utf-8'))
-
-        # receive message from the client
-        client_data = client_connection.recv(MESSAGE_SIZE)
-
-        # output clients message to terminal
-        print(client_name + "> " + client_data.decode('utf-8'))
+    parent_thread.release()
 
 
 # Function that controls the steps of the function
