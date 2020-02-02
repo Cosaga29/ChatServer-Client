@@ -56,7 +56,7 @@ def serve_client(client_connection, port):
 def startup():
 
     hostname = "localhost"
-    port = 12345
+    port = 12346
 
     # create a TCP socket connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
